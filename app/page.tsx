@@ -1,103 +1,91 @@
-import Image from "next/image";
+import { prisma } from "@/lib/prisma";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const jobsPromise = prisma.job.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return <HomeContent jobsPromise={jobsPromise} />;
+}
+
+async function HomeContent({
+  jobsPromise,
+}: {
+  jobsPromise: ReturnType<typeof prisma.job.findMany>;
+}) {
+  const jobs = await jobsPromise;
+
+  return (
+    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-8 px-6 py-16">
+      <div className="space-y-4">
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">
+          Next.js + Neon + Prisma
+        </p>
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          Your project is ready for a simple database setup.
+        </h1>
+        <p className="max-w-2xl text-base leading-7 text-black/70 dark:text-white/70">
+          This starter keeps things basic: one Prisma client, one Neon database,
+          and a clean place to begin building your job posting app.
+        </p>
+      </div>
+
+      <section className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
+          <h2 className="text-lg font-semibold">What&apos;s included</h2>
+          <ul className="mt-4 space-y-2 text-sm text-black/70 dark:text-white/70">
+            <li>• Basic Prisma schema</li>
+            <li>• Reusable Prisma client</li>
+            <li>• Env file template for Neon</li>
+            <li>• Simpler app layout without font build issues</li>
+          </ul>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6 shadow-sm dark:border-blue-900/60 dark:bg-blue-950/30">
+          <h2 className="text-lg font-semibold">Next step</h2>
+          <p className="mt-4 text-sm leading-6 text-black/70 dark:text-white/70">
+            Add your Neon connection string to <strong>.env</strong>, then run your
+            first Prisma migration.
+          </p>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold">Jobs in database</h2>
+            <p className="mt-1 text-sm text-black/70 dark:text-white/70">
+              This list is loaded directly from your Neon database.
+            </p>
+          </div>
+          <span className="rounded-full bg-black px-3 py-1 text-sm font-medium text-white dark:bg-white dark:text-black">
+            {jobs.length}
+          </span>
+        </div>
+
+        {jobs.length === 0 ? (
+          <p className="mt-6 rounded-xl border border-dashed border-black/15 p-4 text-sm text-black/70 dark:border-white/15 dark:text-white/70">
+            No jobs yet. Your database connection is working, and you can start
+            adding records next.
+          </p>
+        ) : (
+          <ul className="mt-6 space-y-3">
+            {jobs.map((job) => (
+              <li
+                key={job.id}
+                className="rounded-xl border border-black/10 p-4 dark:border-white/10"
+              >
+                <p className="font-medium">{job.title}</p>
+                <p className="mt-1 text-sm text-black/70 dark:text-white/70">
+                  {job.company} · {job.location}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </main>
   );
 }
