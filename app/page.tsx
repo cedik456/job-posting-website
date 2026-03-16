@@ -18,7 +18,7 @@ async function HomeContent({
   const jobs = await jobsPromise;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-8 px-6 py-16">
+    <main className="flex min-h-screen flex-col  gap-8 max-w-7xl mx-auto px-4 py-16">
       <div className="space-y-4">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">
           Next.js + Neon + Prisma
@@ -46,8 +46,8 @@ async function HomeContent({
         <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6 shadow-sm dark:border-blue-900/60 dark:bg-blue-950/30">
           <h2 className="text-lg font-semibold">Next step</h2>
           <p className="mt-4 text-sm leading-6 text-black/70 dark:text-white/70">
-            Add your Neon connection string to <strong>.env</strong>, then run your
-            first Prisma migration.
+            Add your Neon connection string to <strong>.env</strong>, then run
+            your first Prisma migration.
           </p>
         </div>
       </section>

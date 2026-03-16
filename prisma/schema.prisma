@@ -7,35 +7,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Job {
-  id        String   @id @default(cuid())
-  title     String
-  company   String
-  location  String
-  type      String
-  description String @db.Text
-  salary    String?
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  REMOTE
+}
 
-  postedAt  DateTime @default(now())
-  postedBy  User @relation("PostedJobs", fields: [postedById], references: [id], onDelete: Cascade)
+enum ApplicationStatus {
+  PENDING
+  REVIEWED
+  ACCEPTED
+  REJECTED
+}
+
+model Job {
+  id          String  @id @default(cuid())
+  title       String
+  company     String
+  location    String
+  type        JobType
+  description String  @db.Text
+  salary      String?
+
+  postedAt   DateTime @default(now())
+  postedBy   User     @relation("PostedJobs", fields: [postedById], references: [id], onDelete: Cascade)
   postedById String
 
-  createdAt DateTime @default(now())
-  application Application[]
-  
+  updatedAt    DateTime      @updatedAt
+  createdAt    DateTime      @default(now())
+  applications Application[]
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  jobs          Job[] @relation("PostedJobs")
-  applications   Application[]
-  
+  jobs          Job[]         @relation("PostedJobs")
+  applications  Application[]
 }
 
 model Account {
@@ -57,7 +71,6 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -76,14 +89,14 @@ model VerificationToken {
 }
 
 model Application {
-    id String @id @default(cuid())
-    jobId String
-    userId String
-    status String @default("PENDING")
-    appliedAt DateTime @default(now())
+  id        String            @id @default(cuid())
+  jobId     String
+  userId    String
+  status    ApplicationStatus @default(PENDING)
+  appliedAt DateTime          @default(now())
 
-    user User @relation(fields: [userId], references: [id])
-    job Job @relation(fields: [jobId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
-    @@unique([jobId, userId])
+  @@unique([jobId, userId])
 }
