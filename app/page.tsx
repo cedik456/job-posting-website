@@ -51,41 +51,6 @@ async function HomeContent({
           </p>
         </div>
       </section>
-
-      <section className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold">Jobs in database</h2>
-            <p className="mt-1 text-sm text-black/70 dark:text-white/70">
-              This list is loaded directly from your Neon database.
-            </p>
-          </div>
-          <span className="rounded-full bg-black px-3 py-1 text-sm font-medium text-white dark:bg-white dark:text-black">
-            {jobs.length}
-          </span>
-        </div>
-
-        {jobs.length === 0 ? (
-          <p className="mt-6 rounded-xl border border-dashed border-black/15 p-4 text-sm text-black/70 dark:border-white/15 dark:text-white/70">
-            No jobs yet. Your database connection is working, and you can start
-            adding records next.
-          </p>
-        ) : (
-          <ul className="mt-6 space-y-3">
-            {jobs.map((job) => (
-              <li
-                key={job.id}
-                className="rounded-xl border border-black/10 p-4 dark:border-white/10"
-              >
-                <p className="font-medium">{job.title}</p>
-                <p className="mt-1 text-sm text-black/70 dark:text-white/70">
-                  {job.company} · {job.location}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
     </main>
   );
 }
