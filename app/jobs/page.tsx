@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import JobFilters from "@/app/jobs/JobFilters";
 import { jobTypes } from "./constants";
 import { formatJobType, formatPostedDate } from "./utils";
+import Link from "next/link";
 
 export default async function JobsPage({
   searchParams,
@@ -159,12 +160,12 @@ export default async function JobsPage({
                   <p className="text-xs uppercase tracking-[0.18em] text-white/45">
                     Posted {formatPostedDate(job.postedAt)}
                   </p>
-                  <button
-                    type="button"
+                  <Link
+                    href={`/jobs/${job.id}`}
                     className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white transition hover:border-white/20 hover:bg-white/[0.08]"
                   >
                     View Details
-                  </button>
+                  </Link>
                 </div>
               </div>
             </article>
