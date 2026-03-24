@@ -1,39 +1,85 @@
-import { JobType } from "@prisma/client";
+import { JobType, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import JobFilters from "@/app/jobs/JobFilters";
+import { jobTypes } from "./constants";
+import { formatJobType, formatPostedDate } from "./utils";
 
-const jobTypes = [
-  JobType.FULL_TIME,
-  JobType.PART_TIME,
-  JobType.CONTRACT,
-  JobType.INTERNSHIP,
-  JobType.REMOTE,
-];
+export default async function JobsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    search?: string | string[];
+    jobType?: string | string[];
+    location?: string | string[];
+  }>;
+}) {
+  const { search, jobType, location } = await searchParams;
+  const searchValue = typeof search === "string" ? search.trim() : "";
+  const jobTypeValue = typeof jobType === "string" ? jobType : "";
+  const locationValue = typeof location === "string" ? location.trim() : "";
 
-function formatJobType(type: JobType) {
-  return type
-    .toLowerCase()
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
+  const filters: Prisma.JobWhereInput[] = [
+    {
+      postedAt: {
+        lte: new Date(),
+      },
+    },
+  ];
 
-function formatPostedDate(date: Date) {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
-}
+  if (searchValue) {
+    filters.push({
+      OR: [
+        {
+          title: {
+            contains: searchValue,
+            mode: "insensitive",
+          },
+        },
+        {
+          company: {
+            contains: searchValue,
+            mode: "insensitive",
+          },
+        },
+        {
+          description: {
+            contains: searchValue,
+            mode: "insensitive",
+          },
+        },
+      ],
+    });
+  }
 
-export default async function JobsPage() {
+  if (jobTypeValue && jobTypes.includes(jobTypeValue as JobType)) {
+    filters.push({
+      type: jobTypeValue as JobType,
+    });
+  }
+
+  if (locationValue) {
+    filters.push({
+      location: {
+        contains: locationValue,
+        mode: "insensitive",
+      },
+    });
+  }
+
   const jobs = await prisma.job.findMany({
+    where: {
+      AND: filters,
+    },
     orderBy: {
       createdAt: "desc",
+    },
+    include: {
+      postedBy: true,
     },
   });
 
   return (
-    <section className="mx-auto max-w-6xl space-y-8 text-white">
+    <section className="space-y-8 text-white">
       <div className="space-y-3">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-cyan-300/80">
           Opportunities
@@ -56,90 +102,11 @@ export default async function JobsPage() {
         </div>
       </div>
 
-      <form className="rounded-xl border border-white/10 bg-white/[0.04] p-4 shadow-xl shadow-black/10 sm:p-6">
-        <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr_1fr_auto]">
-          <div>
-            <label
-              htmlFor="search"
-              className="mb-2 block text-xs font-medium uppercase tracking-[0.18em] text-white/50"
-            >
-              Search
-            </label>
-            <input
-              id="search"
-              name="search"
-              type="text"
-              placeholder="Search job title, company, or keyword"
-              className="w-full rounded-xl border border-white/10 bg-gray-900/80 px-4 py-3 text-base text-white placeholder:text-white/35 focus:border-white/30 focus:outline-none sm:text-sm"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="jobType"
-              className="mb-2 block text-xs font-medium uppercase tracking-[0.18em] text-white/50"
-            >
-              Job Type
-            </label>
-            <div className="relative">
-              <select
-                id="jobType"
-                name="jobType"
-                defaultValue=""
-                className="w-full appearance-none rounded-xl border border-white/10 bg-gray-900/80 px-4 py-3 pr-12 text-base text-white focus:border-white/30 focus:outline-none sm:text-sm"
-              >
-                <option value="">All job types</option>
-                {jobTypes.map((type) => (
-                  <option key={type} value={type} className="bg-gray-900">
-                    {formatJobType(type)}
-                  </option>
-                ))}
-              </select>
-              <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-white/50">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  className="h-5 w-5"
-                >
-                  <path
-                    d="M5 7.5L10 12.5L15 7.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="company"
-              className="mb-2 block text-xs font-medium uppercase tracking-[0.18em] text-white/50"
-            >
-              Company
-            </label>
-            <input
-              id="company"
-              name="company"
-              type="text"
-              placeholder="Filter by company"
-              className="w-full rounded-xl border border-white/10 bg-gray-900/80 px-4 py-3 text-base text-white placeholder:text-white/35 focus:border-white/30 focus:outline-none sm:text-sm"
-            />
-          </div>
-
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-white px-5 py-3 text-sm font-medium text-gray-900 transition hover:bg-white/90 lg:w-auto"
-            >
-              Search Jobs
-            </button>
-          </div>
-        </div>
-      </form>
+      <JobFilters
+        searchValue={searchValue}
+        jobTypeValue={jobTypeValue}
+        locationValue={locationValue}
+      />
 
       {jobs.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.03] px-6 py-16 text-center">
@@ -182,9 +149,13 @@ export default async function JobsPage() {
                   <p className="max-w-3xl text-sm leading-6 text-white/72">
                     {job.description}
                   </p>
+
+                  <p className="mt-1 text-sm text-white/45">
+                    Posted by {job.postedBy.name ?? "Unknown employer"}
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-3 lg:items-end">
+                <div className="flex flex-col gap-3 lg:self-stretch lg:items-end lg:justify-between">
                   <p className="text-xs uppercase tracking-[0.18em] text-white/45">
                     Posted {formatPostedDate(job.postedAt)}
                   </p>

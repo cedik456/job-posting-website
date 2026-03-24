@@ -29,7 +29,9 @@ export default async function RootLayout({
           <div className="min-h-screen bg-gray-900">
             <Navbar />
 
-            <main className="container mx-auto px-4 py-8">{children}</main>
+            <main className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6">
+              {children}
+            </main>
           </div>
         </SessionProvider>
       </body>

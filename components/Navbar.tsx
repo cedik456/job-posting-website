@@ -23,7 +23,7 @@ export default function Navbar() {
 
   return (
     <nav className="relative bg-gray-900 shadow-sm border-b border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16">
           <div>
             <Link href="/" className="flex items-center" onClick={closeMenu}>
@@ -40,14 +40,14 @@ export default function Navbar() {
 
           <div className="hidden md:flex items-center space-x-4">
             {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-sm font-medium text-white transition-colors duration-200 hover:text-white/80"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-sm font-medium text-white transition-colors duration-200 hover:text-white/80"
+              >
+                {item.label}
+              </Link>
+            ))}
             {session ? (
               <>
                 <button

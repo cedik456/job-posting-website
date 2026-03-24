@@ -18,7 +18,7 @@ async function HomeContent({
   const jobs = await jobsPromise;
 
   return (
-    <main className="flex min-h-screen flex-col  gap-8 max-w-7xl mx-auto px-4 py-16">
+    <main className="flex min-h-screen flex-col  gap-8 max-w-6xl mx-auto px-4 py-16">
       <div className="space-y-4">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">
           Next.js + Neon + Prisma
