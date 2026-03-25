@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   request: Request,
-  { params }: { params: { jobId: string } },
+  { params }: { params: Promise<{ jobId: string }> },
 ) {
   const session = await auth();
 
@@ -14,7 +14,7 @@ export async function POST(
   }
 
   try {
-    const { jobId } = params;
+    const { jobId } = await params;
 
     const job = await prisma.job.findUnique({
       where: { id: jobId },
@@ -22,6 +22,12 @@ export async function POST(
 
     if (!job) {
       return new NextResponse("Job not found", { status: 404 });
+    }
+
+    if (job.postedById === session.user.id) {
+      return new NextResponse("You cannot apply to your own job posting", {
+        status: 400,
+      });
     }
 
     const existingApplication = await prisma.application.findFirst({

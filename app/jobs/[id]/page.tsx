@@ -1,11 +1,17 @@
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatJobType, formatPostedDate } from "../utils";
 import ApplyButton from "./ApplyButton";
 
-export default async function JobPage({ params }: { params: { id: string } }) {
-  const jobId = params.id;
+export default async function JobPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id: jobId } = await params;
+  const session = await auth();
 
   const job = await prisma.job.findUnique({
     where: {
@@ -17,6 +23,8 @@ export default async function JobPage({ params }: { params: { id: string } }) {
   if (!job) {
     notFound();
   }
+
+  const isOwner = session?.user?.id === job.postedById;
 
   return (
     <section className="space-y-6 text-white">
@@ -100,7 +108,30 @@ export default async function JobPage({ params }: { params: { id: string } }) {
         </p>
       </section>
 
-      <ApplyButton jobId={job.id} />
+      {isOwner ? (
+        <section className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 p-6 shadow-xl shadow-black/10">
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-cyan-200/80">
+                Your Listing
+              </p>
+              <p className="mt-2 text-sm text-white/80">
+                You posted this job, so applicants will apply here while you
+                manage the listing details.
+              </p>
+            </div>
+
+            <Link
+              href={`/jobs/${job.id}/edit`}
+              className="inline-flex items-center justify-center rounded-lg bg-white px-5 py-3 text-sm font-medium text-gray-900 transition hover:bg-white/90"
+            >
+              Edit Job
+            </Link>
+          </div>
+        </section>
+      ) : (
+        <ApplyButton jobId={job.id} />
+      )}
     </section>
   );
 }
